@@ -171,6 +171,13 @@ export default function EnableScout({ scout, requires, templateTitle }: EnableSc
                 <CopyableCommand
                     command={selfDrivingCommand.displayCommand}
                     copyCommand={selfDrivingCommand.copyCommand}
+                    onCopy={() =>
+                        posthog?.capture('pocket_guide_interaction', {
+                            kind: 'setup_command_copy',
+                            scout: scout?.name,
+                            placement: 'enable_section',
+                        })
+                    }
                 />
             </div>
         </div>

@@ -27,6 +27,13 @@ export default function ScoutFile({ scout }: { scout: ScoutSpec }): JSX.Element 
                     showLabel
                     showCopy
                     showAskAI={false}
+                    onCopy={() =>
+                        posthog?.capture('pocket_guide_interaction', {
+                            kind: 'skill_file_copy',
+                            scout: scout.name,
+                            placement: 'figure',
+                        })
+                    }
                 >
                     {code}
                 </SingleCodeBlock>

@@ -41,7 +41,20 @@ export default function Action(): JSX.Element | null {
                 // The prompt is the deliverable, so it's set like the scout file in vol. 1 – same
                 // code block, wrapped locally because `whitespace-pre` scrolls a sentence sideways.
                 <div className="mb-4 [&_.min-w-fit]:min-w-0 [&_.whitespace-pre]:whitespace-pre-wrap [&_.whitespace-pre]:break-words">
-                    <SingleCodeBlock language="text" label="Prompt for PostHog AI" showLabel showCopy showAskAI={false}>
+                    <SingleCodeBlock
+                        language="text"
+                        label="Prompt for PostHog AI"
+                        showLabel
+                        showCopy
+                        showAskAI={false}
+                        onCopy={() =>
+                            posthog?.capture('pocket_guide_interaction', {
+                                kind: 'ai_prompt_copy',
+                                guide: entry?.url,
+                                placement: 'action_section',
+                            })
+                        }
+                    >
                         {cta.prompt}
                     </SingleCodeBlock>
                 </div>
@@ -80,8 +93,21 @@ const AI_OBSERVABILITY_SUBCOMMAND = 'ai-observability'
  * before anyone reaches a chapter. `<Prerequisite />` repeats it under each CTA.
  */
 export function Setup(): JSX.Element {
+    const posthog = usePostHog()
     const wizard = buildWizardCommand({ subcommand: AI_OBSERVABILITY_SUBCOMMAND })
-    return <CopyableCommand className="my-[0.8em]" command={wizard.displayCommand} copyCommand={wizard.copyCommand} />
+    return (
+        <CopyableCommand
+            className="my-[0.8em]"
+            command={wizard.displayCommand}
+            copyCommand={wizard.copyCommand}
+            onCopy={() =>
+                posthog?.capture('pocket_guide_interaction', {
+                    kind: 'setup_command_copy',
+                    placement: 'front_matter',
+                })
+            }
+        />
+    )
 }
 
 /**
@@ -91,11 +117,23 @@ export function Setup(): JSX.Element {
  * no data in this project" is a worse first impression than a sentence saying so up front.
  */
 function Prerequisite({ requires }: { requires: NonNullable<BookPageCta['requires']> }): JSX.Element {
+    const posthog = usePostHog()
+    const entry = useEntry()?.entry
     const wizard = buildWizardCommand({ subcommand: AI_OBSERVABILITY_SUBCOMMAND })
     return (
         <div className="mt-4 border-t border-light pt-3 dark:border-dark">
             <p className="mb-2 text-xs text-secondary">{requires.label}</p>
-            <CopyableCommand command={wizard.displayCommand} copyCommand={wizard.copyCommand} />
+            <CopyableCommand
+                command={wizard.displayCommand}
+                copyCommand={wizard.copyCommand}
+                onCopy={() =>
+                    posthog?.capture('pocket_guide_interaction', {
+                        kind: 'setup_command_copy',
+                        guide: entry?.url,
+                        placement: 'action_section',
+                    })
+                }
+            />
         </div>
     )
 }
